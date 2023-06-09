@@ -26,7 +26,7 @@ namespace InterfataGrafica
     {
         //AdministrareCarduri_FisierText adminCarduri;
 
-        MySqlConnection cnn = new MySqlConnection("server=79.112.132.123;database=TPL;uid=TPLuser;pwd=TPL2023;");
+        
         MySqlCommand command;
         MySqlDataAdapter da;
         DataSet ds;

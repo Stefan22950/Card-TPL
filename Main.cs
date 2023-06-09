@@ -20,7 +20,7 @@ namespace InterfataGrafica
         //AdministrareCarduri_FisierText adminCarduri;
 
         //List<Persoana> Persoane = new List<Persoana>();
-        MySqlConnection cnn = new MySqlConnection("server=79.112.132.123;database=TPL;uid=TPLuser;pwd=TPL2023;");
+        
         MySqlDataAdapter adpt;
         DataTable dt;
 

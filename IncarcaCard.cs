@@ -16,7 +16,7 @@ namespace InterfataGrafica
 {
     public partial class IncarcaCard : Form
     {
-        MySqlConnection cnn = new MySqlConnection("server=79.112.132.123;database=TPL;uid=TPLuser;pwd=TPL2023;");
+       
         MySqlCommand command;
 
         public string fnr {  get; set; }

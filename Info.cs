@@ -14,7 +14,7 @@ namespace InterfataGrafica
 {
     public partial class Info : Form
     {
-        MySqlConnection cnn = new MySqlConnection("server=79.112.132.123;database=TPL;uid=TPLuser;pwd=TPL2023;");
+        
         MySqlCommand command;
         public int id_pers;
         public string txtcard;
