@@ -24,12 +24,15 @@ namespace InterfataGrafica
 {
     public partial class AdaugaCard1 : Form
     {
-        //AdministrareCarduri_FisierText adminCarduri;
 
-        
+
+        MySqlConnection cnn = new MySqlConnection("server=" + ConfigurationManager.AppSettings["ip"] + ";" + System.Configuration.ConfigurationManager.ConnectionStrings["TPLDB"].ConnectionString);
         MySqlCommand command;
         MySqlDataAdapter da;
         DataSet ds;
+        DatabaseFunctions db;
+        Persoana pers;
+        Card card;
 
         public string fnrc { get; set; }
         public string tip;
@@ -40,14 +43,9 @@ namespace InterfataGrafica
 
         public AdaugaCard1()
         {
-            /*string numeFisier = ConfigurationManager.AppSettings["NumeFisier"]; string locatieFisierSolutie = Directory.GetParent(System.IO.Directory.GetCurrentDirectory()).Parent.Parent.FullName;
-            string caleCompletaFisier = locatieFisierSolutie + "\\" + numeFisier;
-            adminCarduri = new AdministrareCarduri_FisierText(caleCompletaFisier);*/
+
             InitializeComponent();
-            btACadauga.Enabled = false;
-
-            
-
+            btACadauga.Enabled = false;           
         }
 
         private void label1_Click(object sender, EventArgs e)
@@ -77,7 +75,7 @@ namespace InterfataGrafica
 
         private void btACadauga_Click(object sender, EventArgs e)
         {
-            string ID_card = txtAC1cardnr.Text;
+            string ID_card = txtAC1cardnr.Text.Substring(2);
             string nume = txtACnume.Text; nume = UppercaseFirst(nume);
             string prenume = txtACprenume.Text; prenume = UppercaseFirst(prenume);
             string categorie = txtACcat.Text.ToUpper();
@@ -130,69 +128,16 @@ namespace InterfataGrafica
                 DataExp = DataExp.AddDays(30);
             var datae = DataExp.ToString("yyyy-MM-dd HH:mm:ss");
 
+            db = new DatabaseFunctions();
 
-            cnn.Open();
-            string insertQuery1 = "SELECT ID_pers FROM Persoane ORDER BY ID_pers DESC LIMIT 1";
-            command = new MySqlCommand(insertQuery1, cnn);
-            var dr = command.ExecuteReader();
-            
-            if (dr.HasRows)
-            {
-                dr.Read();// Get first record.
-                id_pers = dr.GetInt32(0);// Get value of first column as string.
-                id_pers++;
-            }else { id_pers = 1; }
-            dr.Close();
-            cnn.Close();
+            id_pers =db.GetLastPersID();
+            pers = new Persoana(id_pers, nume, prenume, categorie, txtACcnp.Text);
+            card = new Card(Int32.Parse(ID_card),nume,prenume, txtACcnp.Text,categorie,tip_abon,pret,DataCrearii,DataInc,DataExp);
 
-            string insertQuery2 = "INSERT INTO Persoane(ID_pers,nume,prenume,categorie,cnp) VALUES('" + id_pers + "','" + nume + "','" + prenume + "','" + categorie + "'," + txtACcnp.Text + ")";
-            cnn.Open();
-            command = new MySqlCommand(insertQuery2, cnn);
-            command.ExecuteNonQuery();
-            cnn.Close() ;
-
-            cnn.Open();
-            string insertQuery4 = "SELECT Nr_incar FROM Incarcari WHERE ID_asocC = " + txtAC1cardnr.Text.Substring(2) + " ORDER BY Nr_incar DESC LIMIT 1";
-            command = new MySqlCommand(insertQuery4, cnn);
-            var dr2 = command.ExecuteReader();
-            int nrinc = 0;
-            if (dr.HasRows)
-            {
-                dr2.Read();// Get first record.
-                nrinc = dr2.GetInt32(0);// Get value of first column as string.
-                nrinc++;
-            }
-            else { nrinc = 1; }
-            dr2.Close();
-            cnn.Close();
-
-            string insertQuery5 = "INSERT INTO Incarcari(ID_asocC,Nr_incar,Categorie,Tip_abon,Data_reinc) VALUES ('" + txtAC1cardnr.Text + "','" + nrinc + "','" + categorie + "','" + tip_abon + "','" + datai + "')";
-            cnn.Open();
-            command = new MySqlCommand(insertQuery5, cnn);
-            command.ExecuteNonQuery();
-            cnn.Close();
-
-            string insertQuery3 = "INSERT INTO Carduri(ID_asoc,ID_card,Tip_abon,Pret,Data_creare,Data_inc,Data_exp) VALUES('" + id_pers + "','" + ID_card + "','" + tip_abon + "','" + pret1 + "','" + datac + "','" + datai + "','" + datae + "')";
-            cnn.Open();
-            command = new MySqlCommand(insertQuery3, cnn);
-
-            try
-            {
-                if (command.ExecuteNonQuery() == 1)
-                {
-                    MessageBox.Show("Datele au fost introduse");
-                }
-                else
-                {
-                    MessageBox.Show("Datele nu au fost introduse");
-                }
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show(ex.Message);
-            }
-
-            cnn.Close();
+            db.InsertPers(pers);
+            int nrinc=db.GetLastNrincarc(card);
+            db.InsertIncarc(card, nrinc);
+            db.InsertCard(card, pers);
 
             this.Close();
         }
@@ -206,74 +151,6 @@ namespace InterfataGrafica
             }
             // Return char and concat substring.
             return char.ToUpper(s[0]) + s.Substring(1);
-        }
-
-        /*private int CautareConflictCNP() //cu fisiere
-        {
-            string numeFisier = ConfigurationManager.AppSettings["NumeFisier"];
-            string locatieFisierSolutie = Directory.GetParent(System.IO.Directory.GetCurrentDirectory()).Parent.Parent.FullName;
-            string caleCompletaFisier = locatieFisierSolutie + "\\" + numeFisier;
-
-            string[] lines = File.ReadAllLines(caleCompletaFisier);
-            string[] values;
-            int ok=0;
-
-            for (int i = 0; i < lines.Length; i++)
-            {
-                values = lines[i].ToString().Split(';');
-                if (String.Compare(txtACcnp.Text, values[3]) == 0)
-                {
-                    ok = 1;
-                }
-            }
-            return ok;
-        }*/
-
-        private int CautareConflictCNPDB()
-        {   
-            cnn.Open();
-            string insertQuery1 = "SELECT CNP FROM Persoane WHERE CNP = " + txtACcnp.Text + "";
-            command = new MySqlCommand(insertQuery1, cnn);
-            var dr = command.ExecuteReader();
-            string cnp1;
-            int ok = 0;
-            while (dr.HasRows)
-            {
-                dr.Read();// Get first record.
-                cnp1 = dr.GetString(0);// Get value of first column as string.
-                if(cnp1 == txtACcnp.Text)
-                {
-                    ok = 1;
-                    break;
-                }        
-            }
-            dr.Close();
-            cnn.Close();
-            return ok;
-        }
-
-        private int CautareConflictCardDB()
-        {
-            cnn.Open();
-            string insertQuery1 = "SELECT ID_card FROM Carduri WHERE ID_card = " + txtAC1cardnr.Text + "";
-            command = new MySqlCommand(insertQuery1, cnn);
-            var dr = command.ExecuteReader();
-            string card1;
-            int ok = 0;
-            while (dr.HasRows)
-            {
-                dr.Read();// Get first record.
-                card1 = dr.GetString(0);// Get value of first column as string.
-                if (card1 == txtAC1cardnr.Text.Substring(2))
-                {
-                    ok = 1;
-                    break;
-                }
-            }
-            dr.Close();
-            cnn.Close();
-            return ok;
-
         }
 
         private void txtACcnp_TextChanged(object sender, EventArgs e)
@@ -398,9 +275,10 @@ namespace InterfataGrafica
 
         private void txtACcnp_Validating(object sender, CancelEventArgs e)
         {
+            db=new DatabaseFunctions();
             if(txtACcnp.TextLength == 13)
             {
-                if(CautareConflictCNPDB()==1)
+                if(db.CautareConflictCNPDB(txtACcnp.Text)==1)
                 {
                     btACadauga.Enabled = false;
                     string message = "Conflict CNP! Reintroduceți CNP-ul clientului.";
@@ -417,12 +295,12 @@ namespace InterfataGrafica
         }
 
         private void txtAC1cardnr_TextChanged(object sender, EventArgs e)
-        {
+        {db=new DatabaseFunctions();
             if (txtAC1cardnr.Text.Length == 10)
             {
                 if (txtAC1cardnr.Text.Substring(0, 3) == "001")
                 {
-                    if (CautareConflictCardDB() == 0)
+                    if (db.CautareConflictCardDB(txtAC1cardnr.Text) == 0)
                     {
                         txtAC1cardnr.Hide();
                         lblAC1info.Hide();
@@ -448,15 +326,11 @@ namespace InterfataGrafica
         }
 
         private void txtAC1cardnr_Validating(object sender, CancelEventArgs e)
-        {
+        {db=new DatabaseFunctions();
             if (txtAC1cardnr.TextLength == 10)
             {
-                if (CautareConflictCardDB() == 1)
+                if (db.CautareConflictCardDB(txtAC1cardnr.Text) == 1)
                 {
-                    //this.Hide();
-
-
-
                     this.Close();
                     ret = 1;
 
@@ -519,7 +393,7 @@ namespace InterfataGrafica
 
         private void btp3adauga_Click(object sender, EventArgs e)
         {
-            string ID_card = txtAC1cardnr.Text;
+            string ID_card = txtAC1cardnr.Text.Substring(2);
             string nume = lblp3nume2.Text; nume = UppercaseFirst(nume);
             string prenume = lblp3prenume2.Text; prenume = UppercaseFirst(prenume);
             string categorie = txtp3cat.Text.ToUpper();
@@ -535,87 +409,17 @@ namespace InterfataGrafica
             DateTime DataInc = DateTime.Now; var datai = DataInc.ToString("yyyy-MM-dd HH:mm:ss");
             DateTime DataExp = DateTime.Now;
             var datae = DataExp.ToString("yyyy-MM-dd HH:mm:ss");
+            db=new DatabaseFunctions();
 
-
-            cnn.Open();
-            string insertQuery1 = "SELECT ID_pers FROM Persoane WHERE CNP="+ lblp3CNP2.Text +"" ;
-            command = new MySqlCommand(insertQuery1, cnn);
-            var dr = command.ExecuteReader();
+            id_pers = db.GetPersIDByCNP(lblp3CNP2.Text);
+            pers = new Persoana(id_pers,nume,prenume,categorie, lblp3CNP2.Text);
+            card = new Card(Int32.Parse(ID_card),nume,prenume, lblp3CNP2.Text,categorie,tip_abon,5,DataCrearii,DataInc,DataExp);
             
-            if (dr.HasRows)
-            {
-                dr.Read();
-                id_pers = dr.GetInt32(0);
-
-            }
-            dr.Close();
-            cnn.Close();
-
-            string insertQuery2 = "UPDATE Persoane SET categorie= '"+ categorie +"' WHERE CNP =" + lblp3CNP2.Text +"";
-            cnn.Open();
-            command = new MySqlCommand(insertQuery2, cnn);
-            command.ExecuteNonQuery();
-            cnn.Close();
-
-            cnn.Open();
-            string insertQuery4 = "SELECT Nr_incar FROM Incarcari WHERE ID_asocC = " + txtAC1cardnr.Text.Substring(2) + " ORDER BY Nr_incar DESC LIMIT 1";
-            command = new MySqlCommand(insertQuery4, cnn);
-            var dr2 = command.ExecuteReader();
-            int nrinc = 0;
-            if (dr.HasRows)
-            {
-                dr2.Read();
-                nrinc = dr2.GetInt32(0);
-                nrinc++;
-            }
-            else { nrinc = 1; }
-            dr2.Close();
-            cnn.Close();
-
-            cnn.Open();
-            string insertQuery9 = "SELECT CategorieS,Tip_abonS,Data_expS FROM Carduri_sterse WHERE ID_asocS="+ id_pers +"";
-            command = new MySqlCommand(insertQuery9, cnn);
-            var dr9 = command.ExecuteReader();
-            if (dr9.HasRows)
-            {
-                dr9.Read();
-                categorie= dr9.GetString(0);
-                tip_abon = dr9.GetString(1);
-                datae= dr9.GetDateTime(2).ToString("yyyy-MM-dd HH:mm:ss");
-                tip = tip_abon;
-                
-            }
-            dr9.Close();
-            cnn.Close();
-
-            string insertQuery5 = "INSERT INTO Incarcari(ID_asocC,Nr_incar,Categorie,Tip_abon,Data_reinc) VALUES ('" + txtAC1cardnr.Text + "','" + nrinc + "','" + categorie + "','" + tip_abon + "','" + datai + "')";
-            cnn.Open();
-            command = new MySqlCommand(insertQuery5, cnn);
-            command.ExecuteNonQuery();
-            cnn.Close();
-
-            string insertQuery3 = "INSERT INTO Carduri(ID_asoc,ID_card,Tip_abon,Pret,Data_creare,Data_inc,Data_exp) VALUES('" + id_pers + "','" + ID_card + "','" + tip_abon + "','" + pret1 + "','" + datac + "','" + datai + "','" + datae + "')";
-            cnn.Open();
-            command = new MySqlCommand(insertQuery3, cnn);
-
-            try
-            {
-                if (command.ExecuteNonQuery() == 1)
-                {
-                    MessageBox.Show("Datele au fost introduse");
-                }
-                else
-                {
-                    MessageBox.Show("Datele nu au fost introduse");
-                }
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show(ex.Message);
-            }
-
-            cnn.Close();
-
+            db.UpdateCategPers(pers, lblp3CNP2.Text);
+            int nrinc=db.GetNrIncarcByIDcard(card);
+            card = db.GetCardSters(card, pers);
+            db.InsertIncarc(card, nrinc);
+            db.InsertCard(card, pers);
             
             this.Close();
         }
@@ -629,8 +433,8 @@ namespace InterfataGrafica
             int nrinc = 0;
             if (dr4.HasRows)
             {
-                dr4.Read();// Get first record.
-                nrinc = dr4.GetInt32(0);// Get value of first column as string.
+                dr4.Read();
+                nrinc = dr4.GetInt32(0);
                 nrinc++;
             }
             else { nrinc = 1; }

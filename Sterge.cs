@@ -3,6 +3,7 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Configuration;
 using System.Data;
 using System.Drawing;
 using System.Linq;
@@ -16,7 +17,7 @@ namespace InterfataGrafica
 {
     public partial class Sterge : Form
     {
-        
+        MySqlConnection cnn = new MySqlConnection("server=" + ConfigurationManager.AppSettings["ip"] + ";" + System.Configuration.ConfigurationManager.ConnectionStrings["TPLDB"].ConnectionString);
         MySqlCommand command;
         public int id_pers;
         public string datac; public string datai; public string datae;

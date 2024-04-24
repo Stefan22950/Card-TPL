@@ -98,6 +98,8 @@
     <Compile Include="AdaugaCard1.Designer.cs">
       <DependentUpon>AdaugaCard1.cs</DependentUpon>
     </Compile>
+    <Compile Include="Clase.cs" />
+    <Compile Include="DatabaseFunctions.cs" />
     <Compile Include="IncarcaCard.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -186,6 +188,9 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\20230322_154359_058_saved.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\20230322_154359_058_saved1.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

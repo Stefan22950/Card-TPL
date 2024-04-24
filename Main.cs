@@ -20,7 +20,7 @@ namespace InterfataGrafica
         //AdministrareCarduri_FisierText adminCarduri;
 
         //List<Persoana> Persoane = new List<Persoana>();
-        
+        MySqlConnection cnn = new MySqlConnection("server=" + ConfigurationManager.AppSettings["ip"] + ";" + System.Configuration.ConfigurationManager.ConnectionStrings["TPLDB"].ConnectionString);
         MySqlDataAdapter adpt;
         DataTable dt;
 

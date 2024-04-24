@@ -29,10 +29,10 @@
         private void InitializeComponent()
         {
             this.panel1 = new System.Windows.Forms.Panel();
+            this.button1 = new System.Windows.Forms.Button();
             this.txtLID = new System.Windows.Forms.TextBox();
             this.lblLid = new System.Windows.Forms.Label();
             this.lblLlogin = new System.Windows.Forms.Label();
-            this.button1 = new System.Windows.Forms.Button();
             this.panel1.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -47,6 +47,17 @@
             this.panel1.Name = "panel1";
             this.panel1.Size = new System.Drawing.Size(434, 259);
             this.panel1.TabIndex = 0;
+            // 
+            // button1
+            // 
+            this.button1.BackColor = System.Drawing.Color.Transparent;
+            this.button1.Location = new System.Drawing.Point(163, 209);
+            this.button1.Name = "button1";
+            this.button1.Size = new System.Drawing.Size(106, 35);
+            this.button1.TabIndex = 3;
+            this.button1.Text = "Logare";
+            this.button1.UseVisualStyleBackColor = false;
+            this.button1.Click += new System.EventHandler(this.button1_Click);
             // 
             // txtLID
             // 
@@ -78,17 +89,6 @@
             this.lblLlogin.Size = new System.Drawing.Size(141, 42);
             this.lblLlogin.TabIndex = 0;
             this.lblLlogin.Text = "Logare";
-            // 
-            // button1
-            // 
-            this.button1.BackColor = System.Drawing.Color.Transparent;
-            this.button1.Location = new System.Drawing.Point(163, 209);
-            this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(106, 35);
-            this.button1.TabIndex = 3;
-            this.button1.Text = "Logare";
-            this.button1.UseVisualStyleBackColor = false;
-            this.button1.Click += new System.EventHandler(this.button1_Click);
             // 
             // Login
             // 
